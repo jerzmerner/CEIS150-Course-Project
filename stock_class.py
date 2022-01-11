@@ -1,16 +1,20 @@
 # Summary: This module contains the class definitions that will be used in the stock analysis program
-# Author: 
-# Date: 
+# Author: Rick Burner
+# Date: 10JAN2022
 
 from datetime import datetime
 
 
 # Create Stock class here
 class Stock:
+    
     def __init__(self, symbol, name, shares):
         self._symbol = symbol
         self._name = name
-        self._shares = shares
+        if shares < 0:
+            raise RuntimeWarning("Shares connot be negative.")
+        else:
+            self._shares = shares
         self.DataList = [] # list of daily stock data
 
     @property
@@ -20,11 +24,61 @@ class Stock:
     def name(self,name):
         self._name = name
     
+    @property
+    def shares(self):
+        return(self._shares)
+    @shares.setter
+    def shares(self, shares):
+        raise RuntimeWarning("Use buy() or sell() to change shares.")
+        
+    @property
+    def symbol(self):
+        return(self._symbol)
+    @symbol.setter
+    def symbol(self, symbol):
+        raise RuntimeWarning("Symbol cannot be edited after initiation.")
+    
+    def buy(self, shares):
+        self._shares += shares
+        
+    def sell(self, shares):
+        if self._shares - shares >= 0:
+            self._shares -= shares
+        else:
+           raise RuntimeWarning("Insufficient shares. You cannot sell more shares than you own.") 
+    
+    # Add stock data
+    def add_data(self, stock_data):
+        self.DataList.append(stock_data)
+    
 # Create DailyData class here.
+class DailyData:
+    
+    def __init__(self, date, close, volume):
+        self._date = date
+        self._close = close
+        self._volume = volume
 
-
-
-
+    @property
+    def date(self):
+        return self._date
+    @date.setter
+    def date(self, date):
+        self._date = date
+    
+    @property
+    def close(self):
+        return self._close
+    @close.setter
+    def close(self, close):
+        self._close = close
+    
+    @property
+    def volume(self):
+        return self._volume
+    @volume.setter
+    def volume(self, volume):
+        self._volume = volume
 
 # Unit Test - Do Not Change Code Below This Line *** *** *** *** *** *** *** *** ***
 # main() is used for unit testing only. It will run when stock_class.py is run.
