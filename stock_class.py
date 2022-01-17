@@ -9,7 +9,10 @@ from datetime import datetime
 class Stock:
     
     def __init__(self, symbol, name, shares):
-        self._symbol = symbol
+        if symbol == "":
+            raise RuntimeWarning("Symbol connot be empty.")
+        else:
+            self._symbol = symbol
         self._name = name
         if shares < 0:
             raise RuntimeWarning("Shares connot be negative.")
