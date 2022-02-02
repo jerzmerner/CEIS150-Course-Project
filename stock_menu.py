@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Aug 30 22:57:11 2021
+Created on 31JAN2022
 
-@author: D99003734
+@author: Rick Burner
 """
 from datetime import datetime
 from stock_class import Stock, DailyData
 from account_class import  Traditional, Robo
+import matplotlib
+#Setup matplotlib for Ubuntu 21.10
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 import json
 import csv
-from utilities import clear_screen, display_stock_chart
+from utilities import clear_screen
+
 
 
 
@@ -129,12 +133,44 @@ def investment_type(stock_list):
 
 # Function to create stock chart
 def display_stock_chart(stock_list,symbol):
-    print("This method is under construction")
+       date = []
+       price = []
+       volume = []
+       company = ""
+       for stock in stock_list:
+           if stock.symbol == symbol:
+               company = stock.name
+               for dailyData in stock.DataList:
+                   date.append(dailyData.date)
+                   price.append(dailyData.close)
+                   volume.append(dailyData.volume)
+       plt.plot(date, price)
+       plt.xlabel("Date")
+       plt.ylabel("Price")
+       plt.title(company)
+       plt.ion()
+       plt.show(block=False)
 
 # Display Chart
 def display_chart(stock_list):
-    print("This method is under construction")
-  
+    clear_screen()
+    print("Stock Chart ----")
+    print("Stock List: [", end=" ")
+    for stock in stock_list:
+        print(stock.symbol, end=" ")
+    print("]")
+    symbol = str(input("Which stock do you want to chart?: "))
+    symbol = symbol.upper()
+    found = False
+    for stock in stock_list:
+        if stock.symbol == symbol:
+            found = True
+            current_stock = stock
+    if found == True:
+       display_stock_chart(stock_list, symbol)
+       print("Plot created for {}".format(symbol))
+    else:
+        print("Error: ", symbol, " not found!")  
 
     
 #object encoder and decoder pasted here

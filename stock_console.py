@@ -4,9 +4,13 @@
 
 from datetime import datetime
 from stock_class import Stock, DailyData
-from utilities import clear_screen, display_stock_chart
+from utilities import clear_screen
 from os import path
 import stock_data
+from stock_menu import display_stock_chart
+
+#Setup matplotlib for Ubuntu 21.10
+#matplotlib.use('Qt5Agg')
 
 
 # Main Menu
@@ -282,9 +286,25 @@ def display_report(stock_data):
 # Display Chart
 def display_chart(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
+    print("Stock Chart ----")
+    print("Stock List: [", end=" ")
+    for stock in stock_list:
+        print(stock.symbol, end=" ")
+    print("]")
+    symbol = str(input("Which stock do you want to chart?: "))
+    symbol = symbol.upper()
+    found = False
+    for stock in stock_list:
+        if stock.symbol == symbol:
+            found = True
+    if found == True:
+       display_stock_chart(stock_list, symbol)
+       print("Plot created for {}".format(symbol))
+    else:
+        print("Error: ", symbol, " not found!")      
     _ = input("*** Press Enter to Continue ***")
-
+    
+                
 # Manage Data Menu
 def manage_data(stock_list):
     option = ""

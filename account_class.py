@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 31 11:39:41 2022
+Created on 31JAN2022
 CEIS 150
 @author: Rick Burner
 """
