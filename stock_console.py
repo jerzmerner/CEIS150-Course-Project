@@ -235,12 +235,12 @@ def display_report(stock_data):
         print("Report for: ", stock.symbol, " ", stock.name)
         print("Shares: ", stock.shares)
         count = 0
-        price_total = 0
+        price_total = 0.00
         volume_total = 0
         lowPrice = 999999.99
-        highPrice = 0
+        highPrice = 0.00
         lowVolume = 999999999999
-        highVolume = 0
+        highVolume = 0.00
         startDate = datetime.strptime("12/31/2099","%m/%d/%Y")
         endDate = datetime.strptime("1/1/1900","%m/%d/%Y")
         for daily_data in stock.DataList:

@@ -13,7 +13,7 @@ matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 import json
 import csv
-from utilities import clear_screen
+from utilities import clear_screen, display_stock_chart
 
 
 
@@ -131,26 +131,6 @@ def investment_type(stock_list):
                 print("Symbol Not Found ***")
         trad_acct.add_stock(temp_list)
 
-# Function to create stock chart
-def display_stock_chart(stock_list,symbol):
-       date = []
-       price = []
-       volume = []
-       company = ""
-       for stock in stock_list:
-           if stock.symbol == symbol:
-               company = stock.name
-               for dailyData in stock.DataList:
-                   date.append(dailyData.date)
-                   price.append(dailyData.close)
-                   volume.append(dailyData.volume)
-       plt.plot(date, price)
-       plt.xlabel("Date")
-       plt.ylabel("Price")
-       plt.title(company)
-       plt.ion()
-       plt.show(block=False)
-
 # Display Chart
 def display_chart(stock_list):
     clear_screen()
@@ -165,7 +145,6 @@ def display_chart(stock_list):
     for stock in stock_list:
         if stock.symbol == symbol:
             found = True
-            current_stock = stock
     if found == True:
        display_stock_chart(stock_list, symbol)
        print("Plot created for {}".format(symbol))

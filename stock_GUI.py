@@ -23,7 +23,7 @@ class StockApp:
 
         # Create Window
         self.root = Tk()
-        self.root.title("(myname) Stock Manager") #Replace with a suitable name for your program
+        self.root.title("Rick's Stock Manager") #Replace with a suitable name for your program
 
 
         # Add Menubar
@@ -132,11 +132,26 @@ class StockApp:
        
     # Load stocks and history from database.
     def load(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
-
+        #Delete the current stockList
+        self.stockList.delete(0,END)
+        
+        #Get new stock data
+        stock_data.load_stock_data(self.stock_list)
+        
+        #Sort the new stock list
+        sortStocks(self.stock_list)
+        
+        #Loop through the new stocks and add to the GUI
+        for stock in self.stock_list:
+            self.stockList.insert(END, stock.symbol)
+            
+        #Tell the user we loaded stuff
+        messagebox.showinfo("Load Data","Data Loaded")
+    
     # Save stocks and history to database.
     def save(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
+        stock_data.save_stock_data(self.stock_list)
+        messagebox.showinfo("Save Data","Data Saved")
 
     # Refresh history and report tabs
     def update_data(self, evt):
@@ -144,23 +159,114 @@ class StockApp:
 
     # Display stock price and volume history.
     def display_stock_data(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
-    
+        #Get the selected stock symbol
+        symbol = self.stockList.get(self.stockList.curselection())
+        
+        #Loop through stock_list to find the selected stock
+        for stock in self.stock_list:
+            if stock.symbol == symbol:
+                self.headingLabel['text'] = stock.name + " - " + str(stock.shares) + " Shares"
+                self.dailyDataList.delete("1.0",END)
+                self.stockReport.delete("1.0",END)
+                self.dailyDataList.insert(END,"- Date -   - Price -   - Volume -\n")
+                self.dailyDataList.insert(END,"=================================\n")
+                if not stock.DataList:
+                    row = "*** No Data Found! ***"
+                    self.dailyDataList.insert(END,row)
+                else:
+                    for daily_data in stock.DataList:
+                        row = daily_data.date.strftime("%m/%d/%y") + "   " +  '${:0,.2f}'.format(daily_data.close) + "   " + str(daily_data.volume) + "\n"
+                        self.dailyDataList.insert(END,row)
+                
+                #display report
+                count = 0
+                price_total = 0.00
+                volume_total = 0
+                lowPrice = 999999.99
+                highPrice = 0.00
+                lowVolume = 999999999999
+                highVolume = 0.00
+                startDate = datetime.strptime("12/31/2099","%m/%d/%Y")
+                endDate = datetime.strptime("1/1/1900","%m/%d/%Y")
+                for daily_data in stock.DataList:
+                    count += 1
+                    price_total += daily_data.close
+                    volume_total += daily_data.volume
+                    if daily_data.close < lowPrice:
+                        lowPrice = daily_data.close
+                    if daily_data.close > highPrice:
+                        highPrice = daily_data.close
+                    if daily_data.volume < lowVolume:
+                        lowVolume = daily_data.volume
+                    if daily_data.volume > highVolume:
+                        highVolume = daily_data.volume
+                    if daily_data.date < startDate:
+                        startDate = daily_data.date
+                        startPrice = daily_data.close
+                    if daily_data.date > endDate:
+                        endDate = daily_data.date
+                        endPrice = daily_data.close
+                    priceChange = endPrice - startPrice
+                    
+                if count > 0:
+                    self.stockReport.insert(END,"Summary For " + startDate.strftime("%m/%d/%y") + " to " + endDate.strftime("%m/%d/%y") + "\n")
+                    self.stockReport.insert(END,"Low Price: ${:,.2f}".format(lowPrice) + "\n")
+                    self.stockReport.insert(END,"High Price: ${:,.2f}".format(highPrice) + "\n")
+                    self.stockReport.insert(END,"Average Price: ${:,.2f}".format(price_total / count) + "\n")
+                    self.stockReport.insert(END,"Low Volume: " + str(lowVolume)  + "\n")
+                    self.stockReport.insert(END,"High Volume: " + str(highVolume)  + "\n")
+                    self.stockReport.insert(END,"Average Volume: ${:,.2f}".format(volume_total / count) + "\n")
+                    self.stockReport.insert(END,"Starting Price: ${:,.2f}".format(startPrice) + "\n")
+                    self.stockReport.insert(END,"Ending Price: ${:,.2f}".format(endPrice) + "\n")
+                    self.stockReport.insert(END,"Change in Price: ${:,.2f}".format(priceChange) + "\n")
+                    self.stockReport.insert(END,"Profit/Loss: ${:,.2f}".format(priceChange * stock.shares) + "\n")
+                else:
+                    self.stockReport.insert(END,"No Daily History")
+        
+        
     # Add new stock to track.
     def add_stock(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
+        new_stock = Stock(self.addSymbolEntry.get(),self.addNameEntry.get(),float(self.addSharesEntry.get()))
+        self.stock_list.append(new_stock)
+        self.stockList.insert(END,self.addSymbolEntry.get())
+        self.addSymbolEntry.delete(0,END)
+        self.addNameEntry.delete(0,END)
+        self.addSharesEntry.delete(0,END)
 
     # Buy shares of stock.
     def buy_shares(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
-
+        symbol = self.stockList.get(self.stockList.curselection())
+        for stock in self.stock_list:
+            if stock.symbol == symbol:
+                 stock.buy(float(self.updateSharesEntry.get()))
+                 self.headingLabel['text'] = stock.name + " - " + str(stock.shares) + " Shares"
+        messagebox.showinfo("Buy Shares","Shares Purchased")
+        self.updateSharesEntry.delete(0,END)
+        
     # Sell shares of stock.
     def sell_shares(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
+        symbol = self.stockList.get(self.stockList.curselection())
+        for stock in self.stock_list:
+            if stock.symbol == symbol:
+                 stock.sell(float(self.updateSharesEntry.get()))
+                 self.headingLabel['text'] = stock.name + " - " + str(stock.shares) + " Shares"
+        messagebox.showinfo("Sell Shares","Shares Sold")
+        self.updateSharesEntry.delete(0,END)
 
     # Remove stock and all history from being tracked.
     def delete_stock(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
+        symbol = self.stockList.get(self.stockList.curselection())
+        i = 0
+        for stock in self.stock_list:
+            if stock.symbol == symbol:
+                self.stock_list.pop(i)
+            i = i + 1
+        self.display_stock_data()
+        self.stockList.delete(0,END)
+        sortStocks(self.stock_list)
+        for stock in self.stock_list:
+            self.stockList.insert(END,stock.symbol)
+        messagebox.showinfo("Stock Deleted",symbol + " Removed")
 
     # Get data from web scraping.
     def scrape_web_data(self):
@@ -172,8 +278,8 @@ class StockApp:
     
     # Display stock price chart.
     def display_chart(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
-
+        symbol = self.stockList.get(self.stockList.curselection())
+        display_stock_chart(self.stock_list, symbol)
 
 def main():
         app = StockApp()
