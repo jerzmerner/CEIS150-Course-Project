@@ -34,7 +34,7 @@ class StockApp:
         self.filemenu.add_command(label = "Load Data",command = self.load)
         self.filemenu.add_command(label = "Save Data",command = self.save)
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Exit",command = self.root.quit)
+        self.filemenu.add_command(label="Exit",command = self.root.quit())
         self.menubar.add_cascade(label="File",menu=self.filemenu)
 
         # Add Web Menu 
@@ -160,8 +160,13 @@ class StockApp:
     # Display stock price and volume history.
     def display_stock_data(self):
         #Get the selected stock symbol
-        symbol = self.stockList.get(self.stockList.curselection())
-        
+        try:
+            #In some cases, nothing is selected and an error is thrown unneccesarily
+            symbol = self.stockList.get(self.stockList.curselection())
+        except:
+            #Nothing was selected so there's nothing to do
+            return
+            
         #Loop through stock_list to find the selected stock
         for stock in self.stock_list:
             if stock.symbol == symbol:
@@ -270,11 +275,24 @@ class StockApp:
 
     # Get data from web scraping.
     def scrape_web_data(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")
+        dateFrom = simpledialog.askstring("Starting Date","Enter Starting Date (mm/dd/yy)")
+        dateTo = simpledialog.askstring("Ending Date","Enter Ending Date (mm/dd/yy")
+        try:
+            stock_data.retrieve_stock_web(dateFrom,dateTo,self.stock_list)
+        except:
+            messagebox.showerror("Cannot Get Data from Web","Check Path for Chrome Driver")
+            return
+        self.display_stock_data()
+        messagebox.showinfo("Get Data From Web","Data Retrieved")
 
     # Import CSV stock history file.
     def importCSV_web_data(self):
-        messagebox.showinfo("Under Construction","This Module Not Yet Implemented")  
+        symbol = self.stockList.get(self.stockList.curselection())
+        filename = filedialog.askopenfilename(title="Select " + symbol + " File to Import",filetypes=[('Yahoo Finance! CSV','*.csv')])
+        if filename != "":
+            stock_data.import_stock_web_csv(self.stock_list,symbol,filename)
+            self.display_stock_data()
+            messagebox.showinfo("Import Complete",symbol + " Import Complete") 
     
     # Display stock price chart.
     def display_chart(self):

@@ -210,7 +210,7 @@ def add_stock_data(stock_list):
         if stock.symbol == symbol:
             found = True
             current_stock = stock
-    if found == True:
+    if found:
         print("Ready to add data for: ", symbol)
         print("Enter Data Separated by Commas - Do Not Use Spaces")
         print("Enter a blank line to quit")
@@ -335,25 +335,40 @@ def manage_data(stock_list):
             print("--- Data Loaded from Database ---")
             _ = input("Press Enter to Continue")
         elif option == "3":
-            retrieve_from_web(stock_list)
+            #Get a date range from the user
+            dates = input("Enter a date range to retrieve (1/16/22,1/26/22) : ")
+            startDate, stopDate = dates.split(",")
+            #Call the function to fetch data from the web
+            stock_data.retrieve_stock_web(startDate, stopDate, stock_list)
             print("--- Data Retrieved from Yahoo! Finance ---")
             _ = input("Press Enter to Continue")
         elif option == "4":
             import_csv(stock_list)
+            _ = input("Press Enter to Continue")
         else:
             print("Returning to Main Menu")
-
-# Get stock price and volume history from Yahoo! Finance using Web Scraping
-def retrieve_from_web(stock_list):
-    clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
 
 # Import stock price and volume history from Yahoo! Finance using CSV Import
 def import_csv(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
+    print("Import CSV file from Yahoo Finance ---")
+    print("Stock List: [", end=" ")
+    for stock in stock_list:
+        print(stock.symbol, end=" ")
+    print("]")
+    symbol = str(input("Which stock do you want to use?: "))
+    symbol = symbol.upper()
+    found = False
+    for stock in stock_list:
+        if stock.symbol == symbol:
+            found = True
+            current_stock = stock
+    if found:
+        filename = input("Enter Filename: ")
+        stock_data.import_stock_web_csv(stock_list,current_stock.symbol,filename)
+        print("CSV Import Complete: {}".format(filename))
+    else:
+        print("Error: ", symbol, " not found!")           
 
 # Begin program
 def main():
